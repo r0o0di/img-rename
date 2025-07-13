@@ -1,410 +1,146 @@
-// Include JSZip
+// ...existing code...
+const uploadInput = document.getElementById('uploadInput');
+const previewContainer = document.getElementById('previewContainer');
+const downloadBtn = document.querySelector('.download');
+const additionalText = document.getElementById('additionalText');
+const fillerCheckbox = document.getElementById('fillerCheckbox');
+const counter = document.getElementById('counter');
+const progressCounter = document.getElementById('progressCounter');
+const emptyText = document.getElementById('emptyText');
+const zipProgressBarContainer = document.getElementById('zipProgressBarContainer');
+const zipProgressBar = document.getElementById('zipProgressBar');
+const zipProgressPercent = document.getElementById('zipProgressPercent');
 
-const zip = new JSZip(); // Create a new instance of JSZip
+let filesSorted = [];
 
+additionalText.addEventListener('input', () => {
+    downloadBtn.disabled = additionalText.value.trim() === '';
+    emptyText.style.display = additionalText.value.trim() === '' ? 'block' : 'none';
+});
 
+downloadBtn.disabled = true;
+emptyText.style.display = 'block';
+
+function updateDownloadBtnState() {
+    if (filesSorted.length === 0 || additionalText.value.trim() === '') {
+        downloadBtn.disabled = true;
+        downloadBtn.style.backgroundColor = '#ccc';
+    } else {
+        downloadBtn.disabled = false;
+        downloadBtn.style.backgroundColor = '#ffcb47';
+    }
+}
+
+additionalText.addEventListener('input', updateDownloadBtnState);
 
 function previewImages() {
-
-    console.log("Starting image preview...");
-
-    const input = document.getElementById('uploadInput');
-
-    const previewContainer = document.getElementById('previewContainer');
-
-    const downloadButton = document.querySelector('button[onclick="downloadImages()"]');
-
-    const images = input.files;
-
-    const counterElement = document.getElementById('counter');
-
-    let isDownloadButtonActive = false;
-
-
-
-    let currentImageIndex = 0;
-
-
-
     previewContainer.innerHTML = '';
+    filesSorted = Array.from(uploadInput.files)
+        .sort((a, b) => {
+            const nameA = a.name.toLowerCase();
+            const nameB = b.name.toLowerCase();
+            return nameA.localeCompare(nameB, undefined, { numeric: true, sensitivity: 'base' });
+        });
 
-    downloadButton.style.background = "";
+    counter.textContent = `0/${filesSorted.length} images loaded...`;
+    let loadedCount = 0;
 
-    counterElement.textContent = `0/${images.length} images loaded`;
+    downloadBtn.disabled = true;
+    downloadBtn.style.backgroundColor = '#ccc';
 
-
-
-    function previewNextImage() {
-
-        console.log(`Previewing image ${currentImageIndex + 1} of ${images.length}`);
-
-        downloadButton.style.display = 'block';
-
-        counterElement.style.display = 'block';
-
-        counterElement.textContent = `${currentImageIndex}/${images.length} images loaded`;
-
-
-
-        // Check if the download button is active
-
-        if (isDownloadButtonActive) {
-
-            downloadButton.style.background = "#ffcb47";
-
-        } else {
-
-            downloadButton.style.background = "";
-
-        }
-
-
-
-        if (currentImageIndex < images.length) {
-
-            previewImage(images[currentImageIndex]);
-
-        } else {
-
-            console.log("All images previewed, showing download button.");
-
-            isDownloadButtonActive = true; // Activate the download button
-
-            downloadButton.style.background = "#ffcb47";
-
-        }
-
-    }
-
-
-
-    function previewImage(image) {
-
-        console.log(`Processing image: ${image.name}`);
-
-        const canvas = document.createElement('canvas');
-
-        const ctx = canvas.getContext('2d');
-
-
-
-        const img = new Image();
-
-        img.src = URL.createObjectURL(image);
-
-
-
-        img.onload = function () {
-
-            console.log("Image loaded successfully.");
-
-            downloadButton.style.display = 'none';
-
-            progressCounter.style.display = "none";
-
-
-            // Display the preview on the page
-
-            const previewImageElement = new Image();
-
-            previewImageElement.src = canvas.toDataURL();
-
-            previewImageElement.classList.add('preview-image');
-
-            previewContainer.appendChild(previewImageElement);
-
-
-
-            // Move to the next image
-
-            currentImageIndex++;
-
-            previewNextImage();
-
+    filesSorted.forEach((file, idx) => {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            const img = document.createElement('img');
+            img.src = e.target.result;
+            img.style.maxWidth = '150px';
+            img.style.margin = '5px';
+            previewContainer.appendChild(img);
+            loadedCount++;
+            counter.textContent = `${loadedCount}/${filesSorted.length} images loaded...`;
+            if (loadedCount === filesSorted.length) {
+                updateDownloadBtnState();
+            }
         };
-
-    }
-
-
-
-    // Start previewing the first image
-
-    previewNextImage();
-
-}
-
-
-
-function downloadImages() {
-
-    const input = document.getElementById('uploadInput');
-
-    const images = input.files;
-
-    const fillerCheckbox = document.getElementById('fillerCheckbox');
-
-    const additionalTextField = document.getElementById('additionalText');
-
-    const downloadButton = document.querySelector('button[onclick="downloadImages()"]');
-
-    const progressCounter = document.getElementById('progressCounter');
-
-    let downloadedCount = document.getElementById('downloadedCount').value || 1;
-
-
-
-    // Check if the download button is active
-
-    if (downloadButton.style.background !== "rgb(255, 203, 71)") {
-
-        return;
-
-    }
-
-
-
-    if (additionalTextField.value.trim() === "") {
-
-        const emptyText = document.getElementById("emptyText");
-
-        alert(emptyText.textContent);
-
-        return;
-
-    }
-
-
-
-    const sortedImages = Array.from(images).sort((a, b) => {
-
-        const nameA = a.name.toLowerCase();
-
-        const nameB = b.name.toLowerCase();
-
-        return nameA.localeCompare(nameB, undefined, { numeric: true, sensitivity: 'base' });
-
+        reader.readAsDataURL(file);
     });
+}
 
-
-
-    // Collect images for zip file
-
-    const zipImages = [];
-
-
-
-    function downloadNextImage(index) {
-
-        if (index < sortedImages.length) {
-
-            const image = sortedImages[index];
-
-            const canvas = document.createElement('canvas');
-
-            
-            const counterElement = document.getElementById('counter');
-
-
-
-            const img = new Image();
-
-            img.src = URL.createObjectURL(image);
-
-
-
-            img.onload = function () {
-
-                counterElement.style.display = "none";
-
-              
-                const jpegDataURL = canvas.toDataURL('image/jpeg', 1);
-
-
-
-
-
-                const additionalText = additionalTextField.value;
-
-                const suffix = fillerCheckbox.checked ? '-filler' : '';
-
-                const finalFileName = additionalText + '-' + downloadedCount + suffix + '.jpg';
-
-
-
-                // Store in zip array
-
-                zipImages.push({ finalFileName, jpegDataURL });
-
-
-
-                // Update progress
-
-                progressCounter.style.display = "block";
-
-                downloadedCount++;
-
-                progressCounter.textContent = `${downloadedCount}/${images.length} images processed`;
-
-
-
-                downloadNextImage(index + 1);
-
-            };
-
+async function fileToJpeg(file) {
+    return new Promise((resolve) => {
+        if (file.type === 'image/jpeg') {
+            resolve(file);
         } else {
-
-            // When all images are processed, offer ZIP download
-
-            downloadZip(zipImages);
-
+            const img = document.createElement('img');
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                img.onload = function () {
+                    const canvas = document.createElement('canvas');
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0);
+                    canvas.toBlob((blob) => {
+                        const jpegFile = new File([blob], file.name.replace(/\.[^/.]+$/, ".jpg"), { type: "image/jpeg", lastModified: file.lastModified });
+                        resolve(jpegFile);
+                    }, 'image/jpeg');
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
         }
-
-    }
-
-
-
-    // Start downloading the first image
-
-    downloadNextImage(0);
-
+    });
 }
 
+async function downloadImages() {
+    if (additionalText.value.trim() === '') return;
 
-
-// Helper function to pad single digits with a leading zero
-
-function padNumber(number) {
-
-    return number < 10 ? '0' + number : number;
-
-}
-
-
-
-function calculateMargin(img, direction) {
-
-    const canvas = document.createElement('canvas');
-
-  
-
-    const data = imageData.data;
-
-
-
-    return 0;
-
-}
-
-
-
-// JSZip function to generate and download the zip file
-
-async function downloadZip(images) {
+    downloadBtn.disabled = true;
+    downloadBtn.style.backgroundColor = '#ccc';
+    zipProgressBarContainer.style.display = 'block';
+    zipProgressBar.value = 0;
+    zipProgressPercent.textContent = '0%';
 
     const zip = new JSZip();
+    let processed = 0;
+    progressCounter.textContent = `0/${filesSorted.length} images processed...`;
 
+    for (let i = 0; i < filesSorted.length; i++) {
+        let file = filesSorted[i];
+        file = await fileToJpeg(file);
 
+        let baseName = additionalText.value.trim() + '-' + (i + 1);
+        if (fillerCheckbox.checked) baseName += '-filler';
+        const fileName = baseName + '.jpg';
 
-    // Reference to the progress bar elements
+        zip.file(fileName, file);
 
-    const progressBarContainer = document.getElementById('zipProgressBarContainer');
-
-    const progressBar = document.getElementById('zipProgressBar');
-
-    const progressPercent = document.getElementById('zipProgressPercent');
-
-
-
-    // Reset progress bar and display it
-
-    progressBar.value = 0;
-
-    progressPercent.textContent = '0%';
-
-    progressBarContainer.style.display = 'block';
-
-
-
-    // Add images to zip folder
-
-    for (let i = 0; i < images.length; i++) {
-
-        const { finalFileName, jpegDataURL } = images[i];
-
-        const blob = dataURLToBlob(jpegDataURL);
-
-        zip.file(finalFileName, blob);
-
+        processed++;
+        progressCounter.textContent = `${processed}/${filesSorted.length} images processed...`;
+        zipProgressBar.value = Math.round((processed / filesSorted.length) * 100);
+        zipProgressPercent.textContent = `${zipProgressBar.value}%`;
     }
 
+    zipProgressBar.value = 0;
+    zipProgressPercent.textContent = '0%';
 
+    const zipName = '!' + additionalText.value.trim() + '.zip';
 
-    // Generate zip with progress tracking
+    zip.generateAsync({ type: "blob" }, (metadata) => {
+        zipProgressBar.value = Math.round(metadata.percent);
+        zipProgressPercent.textContent = `${Math.round(metadata.percent)}%`;
+    }).then(function (blob) {
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = zipName;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
 
-    const zipBlob = await zip.generateAsync({ 
-
-        type: 'blob', 
-
-        compression: 'STORE', // You can use 'DEFLATE' for compression
-
-        streamFiles: true
-
-    }, (metadata) => {
-
-        const percent = Math.floor(metadata.percent);
-
-        progressBar.value = percent; // Update the progress bar value
-
-        progressPercent.textContent = `${percent}%`; // Update the text with percentage
-
+        zipProgressBar.value = 100;
+        zipProgressPercent.textContent = '100%';
+        downloadBtn.disabled = false;
+        updateDownloadBtnState();
+        zipProgressBarContainer.style.display = 'none';
     });
-
-
-
-    // After zip is fully generated, download it
-
-    const { finalFileName } = images[0];
-
-    const zipUrl = URL.createObjectURL(zipBlob);
-
-    const a = document.createElement('a');
-
-    a.href = zipUrl;
-
-    a.download = `!${finalFileName.split('-')[0]}.zip`;
-
-    a.click();
-
-    URL.revokeObjectURL(zipUrl);
-
-
-
-    // Hide progress bar after download starts
-
-    progressBarContainer.style.display = 'none';
-
-}
-
-
-
-// Convert DataURL to Blob
-
-function dataURLToBlob(dataURL) {
-
-    const byteString = atob(dataURL.split(',')[1]);
-
-    const mimeString = dataURL.split(',')[0].split(':')[1].split(';')[0];
-
-    const ab = new ArrayBuffer(byteString.length);
-
-    const ia = new Uint8Array(ab);
-
-    for (let i = 0; i < byteString.length; i++) {
-
-        ia[i] = byteString.charCodeAt(i);
-
-    }
-
-    return new Blob([ab], { type: mimeString });
-
 }

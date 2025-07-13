@@ -86,7 +86,7 @@ label {
     font-size: 21px;
     width: 12rem;
     border-radius: 2rem;
-    display: none;
+    /* display: none; */
 }
 
 .placeholder-download {
