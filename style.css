@@ -1,0 +1,116 @@
+body {
+    font-family: Arial, sans-serif;
+    color: #ffcb74;
+    background-color: #2f2f2f;
+    margin: 0;
+    padding: 20px;
+    text-align: center;
+    font-size: 18px;
+    
+}
+
+input[type="file"] {
+    display: none;
+}
+
+input[type="checkbox"] {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    outline: none;
+    border: 2px solid #ffcb47; /* Border color */
+    border-radius: 0.1rem;
+    width: 2rem;
+    height: 2rem;
+    background-color: #111111; /* Background color when unchecked */
+
+    /* Checkmark style */
+    position: relative;
+  }
+
+  /* Checkmark when the checkbox is checked */
+  input[type="checkbox"]:checked::before {
+    content: '\2713'; /* Checkmark character */
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%,-50%);
+    font-size: 2rem;
+    color: #ffcb47; /* Checkmark color */
+  }
+
+  input[type="text"] {
+    padding: 8px;
+    border-radius: 4px;
+    margin-bottom: 10px;
+    width: 200px; /* Adjust the width as needed */
+    
+  }
+
+.btns-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    
+}
+
+button {
+    display: inline-block;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+
+label {
+    display: inline-block;
+    cursor: pointer;
+    padding: 10px 15px;
+    background-color: #3498db;
+    color: #fff;
+    border-radius: 2rem;
+    width: 10rem;
+    margin-bottom: 5px;
+
+}
+
+.filler, .text, .counter, .progress, #emptyText {
+    display: none;
+}
+
+.download {
+    color: #111111;
+    background-color: gray;
+    font-size: 21px;
+    width: 12rem;
+    border-radius: 2rem;
+    display: none;
+}
+
+.placeholder-download {
+    background-color: #ccc; /* Gray background color for the placeholder */
+    transition: background-color 0.5s ease-in-out; /* Smooth transition effect */
+}
+
+
+hr {
+    border: none;
+    width: 100%;
+}
+#uploadContainer {
+    text-align: center;
+}
+
+#previewContainer {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.preview-image {
+    max-width: 100%;
+    max-height: 200px;
+    margin: 5px;
+}
