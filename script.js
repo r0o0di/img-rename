@@ -92,6 +92,19 @@ async function fileToJpeg(file) {
     });
 }
 
+const nchCheckbox = document.createElement('input');
+nchCheckbox.type = 'checkbox';
+nchCheckbox.id = 'nchCheckbox';
+nchCheckbox.checked = true;
+
+const nchLabel = document.createElement('label');
+nchLabel.htmlFor = 'nchCheckbox';
+nchLabel.textContent = 'Add -NCH to last image';
+
+const btnsContainer = document.querySelector('.btns-container');
+btnsContainer.insertBefore(nchLabel, document.getElementById('fillerCheckbox').parentElement.nextSibling);
+btnsContainer.insertBefore(nchCheckbox, nchLabel.nextSibling);
+
 async function downloadImages() {
     if (additionalText.value.trim() === '') return;
 
@@ -111,6 +124,8 @@ async function downloadImages() {
 
         let baseName = additionalText.value.trim() + '-' + (i + 1);
         if (fillerCheckbox.checked) baseName += '-filler';
+        // Add -NCH to last image if checkbox is checked
+        if (nchCheckbox.checked && i === filesSorted.length - 1) baseName += '-NCH';
         const fileName = baseName + '.jpg';
 
         zip.file(fileName, file);
