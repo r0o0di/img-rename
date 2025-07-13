@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="manifest.webmanifest">
+    <title>Image Cropper</title>
+    <style>
+
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js"></script>
+
+</head>
+
+<body>
+
+    <div class="btns-container">
+        <div id="uploadContainer">
+            <label for="uploadInput">Choose Images</label>
+            <input type="file" id="uploadInput" accept="image/*" multiple onchange="previewImages()">
+        </div>
+        <div>
+            <label class="filler" for="fillerCheckbox"></label>
+            <input type="checkbox" id="fillerCheckbox">
+        </div>
+        <div>
+            <label class="text" for="additionalText"></label>
+            <input type="text" id="additionalText">
+        </div>
+        <input type="text" inputmode="numeric" id="downloadedCount" placeholder="download Count (1 by default)">
+        <p id="emptyText">Text field is empty</p>
+        <button class="download" onclick="downloadImages()">Download</button>
+        <p class="counter" id="counter">0/0 images loaded...</p>
+        <p class="progress" id="progressCounter">0/0 images processed...</p>
+
+        <div id="zipProgressBarContainer" style="display: none;">
+            <progress id="zipProgressBar" value="0" max="100"></progress>
+            <span id="zipProgressPercent">0%</span>
+        </div>
+        
+        
+        <hr>
+        <div id="previewContainer"></div>
+    </div>
+    <script src="script.js" defer>
+
+    </script>
+</body>
+
+</html>
